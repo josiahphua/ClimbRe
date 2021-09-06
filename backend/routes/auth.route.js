@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const UserModel = require('../models/user.model');
+const checkUser = require('../lib/checkUser');
 const { nanoid } = require('nanoid')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
