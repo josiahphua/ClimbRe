@@ -13,7 +13,7 @@ router.get('/user', async (req,res) => {
         res.status(200).json({user});
     } catch (e) {
         res.status(400).json({ message: "something went wrong" });
-    };
+    }
 });
 
 
@@ -33,7 +33,7 @@ router.post('/register', async (req,res) => {
 
             let newNanoId = await nanoid(8).toUpperCase();
             user.id = `${(user.userType === "User") ? "U-" : "S-"}${newNanoId}`;
-            
+
             console.log(user);
             await user.save();
 
@@ -50,9 +50,64 @@ router.post('/register', async (req,res) => {
         console.log(e);
         res.status(400).json({ message: "user not created" });
     }
-})
+});
 
+// log in user
+router.post('/login', async (req,res) => {
+    try {
+        let user = await UserModel.findOne({ email: req.body.email });
+        //if user is not in DB.
+        if(!user){
+            throw "user not found";
+        };
 
+        // if user is in DB, check password.
+        if(!user.validPassword(req.body.password)){
+            throw "check user password";
+        };
+
+        let token = jwt.sign({
+            user: {
+                id: user._id,
+                userType: user.userType
+            }
+        }, process.env.JWTSECRET, { expiresIn: "7d" });
+
+        res.status(200).json({token});
+
+    } catch (e) {
+        console.log(e);
+        res.status(400).json({ message: e });
+    }
+});
+
+// change password
+router.post('/update', async (req,res) => {
+    try {
+        let updateObj = req.body;
+
+        await (updateObj.password) ? updateObj.password = await bcrypt.hash(updateObj.password, 10) :
+
+        await UserModel.findByIdAndUpdate(req.user.id, {
+            $set: {...updateObj}
+        });
+
+        res.status(200).json({ message: "password updated" });
+    } catch (e) {
+        res.status(400).json({ message: e });
+    }
+});
+
+router.delete('/delete', async (req,res) => {
+    try {
+        let deleteObj = await UserModel.findByIdAndDelete(req.user.id);
+        console.log("deleted: ", deleteObj);
+        res.status(200).json({ message: "user deleted" });
+
+    } catch (e) {
+        res.status(400).json({ message: e });
+    }
+});
 
 
 module.exports = router
