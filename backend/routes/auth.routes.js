@@ -8,7 +8,7 @@ require('dotenv').config();
 
 
 //getting of user
-router.get('/user', async (req,res) => {
+router.get('/user', checkUser, async (req,res) => {
     try {
         let user = await UserModel.findById(req.user.id, "-password");
         res.status(200).json({user});
@@ -83,7 +83,7 @@ router.post('/login', async (req,res) => {
 });
 
 // change password
-router.post('/update', async (req,res) => {
+router.post('/update', checkUser, async (req,res) => {
     try {
         let updateObj = req.body;
 
@@ -99,7 +99,7 @@ router.post('/update', async (req,res) => {
     }
 });
 
-router.delete('/delete', async (req,res) => {
+router.delete('/delete', checkUser, async (req,res) => {
     try {
         let deleteObj = await UserModel.findByIdAndDelete(req.user.id);
         console.log("deleted: ", deleteObj);
