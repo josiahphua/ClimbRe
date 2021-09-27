@@ -1,13 +1,20 @@
 const router = require('express').Router();
 const GymModel = require('../models/gym.model');
 const checkUser = require('../lib/checkUser');
+const gymSeed = require('../lib/seeds/gymSeed');
 
 
 //getting all the gyms out in base /api/gym/ directory
 router.get('/', async (req, res)=>{
     let allGyms = await GymModel.find()
-    // .populate("routes") 
-    //Will add this in later for viewing sake
+    .populate({
+        path: "zones",
+        populate: {
+            path: "routes",
+            model: "Route"
+        }
+    }) 
+    console.log(allGyms)
     try {
         res.status(200).json({allGyms})
     } catch (e) {
@@ -15,9 +22,22 @@ router.get('/', async (req, res)=>{
     }
 });
 
+router.post('/seed', async (req, res) => {
+    await GymModel.deleteMany();
+    try {
+        const newGym = await GymModel.create(gymSeed)
+        console.log("this is gym seeding: ",newGym)
+
+        res.status(200).json({newGym})
+    } catch (e) {
+        res.status(400).json({"message" : e})
+    }
+})
+
 //adding gym
 router.post('/add', async (req, res)=>{
     const newGym = new GymModel(req.body)
+
 
     try {
         await newGym.save()
@@ -46,9 +66,9 @@ router.put('/update/:gymID', checkUser, async (req, res)=>{
 })
 
 // deleting gym
-router.delete('/delete/gym', async (req, res)=>{
+router.delete('/delete/:gymID', async (req, res)=>{
     try {
-        let deleteGym = await GymModel.findByIdAndDelete(req.gymID);
+        let deleteGym = await GymModel.findByIdAndDelete(req.params.gymID);
         console.log('deleted: ', deleteGym)
         res.status(200).json({message : "gym deleted"});
     } catch (e) {

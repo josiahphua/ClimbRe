@@ -12,8 +12,7 @@ const userSchema = new Schema({
         default: "User",
         enum: ["User", "Staff"]
     },
-    isStaff: Boolean,
-
+    isStaff: Boolean
 });
 
 module.exports = mongoose.model("User", userSchema);

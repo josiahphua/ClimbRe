@@ -2,19 +2,14 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const gymSchema = new Schema({
-    id: String,
+    id: Number,
     name: String,
     grading: String,
-    zones: {
-        type: String,
-        enum: ["Lead", "Boulder", "Top-Rope"]
-    },
-    routes:[{
+    location : String,
+    zones:[{
         type: Schema.Types.ObjectId,
-        ref: "Route"
+        ref: "Zone"
     }],
-    location : String
-    
 });
 
 module.exports = mongoose.model("Gym", gymSchema);

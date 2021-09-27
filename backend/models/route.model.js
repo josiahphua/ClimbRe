@@ -5,14 +5,7 @@ const routeSchema = new Schema({
     id: String,
     colour: String,
     difficulty: Number,
-    description: {
-        required: false,
-        type: String,
-    },
-    zoneLocation: [{
-        type: Schema.Types.ObjectId,
-        ref: "Gym"
-    }]
+    description: String
 });
 
 module.exports = mongoose.model("Route", routeSchema);
